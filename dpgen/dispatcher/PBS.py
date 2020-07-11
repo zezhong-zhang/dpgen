@@ -21,6 +21,9 @@ class PBS(Batch) :
                     return JobStatus.finished
                 else :
                     return JobStatus.terminated
+            elif (ret == 35):
+                if self.check_finish_tag():
+                    return JobStatus.finished
             else :
                 raise RuntimeError ("status command qstat fails to execute. erro info: %s return code %d"
                                     % (err_str, ret))
