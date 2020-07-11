@@ -461,16 +461,16 @@ class SlurmJob (RemoteJob) :
         ret = ''
         ret += "#!/bin/bash -l\n"
         ret += "#SBATCH -N %d\n" % res['numb_node']
-        ret += "#SBATCH --ntasks-per-node %d\n" % res['task_per_node']
-        ret += "#SBATCH -t %s\n" % res['time_limit']
+        ret += "#SBATCH --ntasks-per-node=%d\n" % res['task_per_node']
+        ret += "#SBATCH -t=%s\n" % res['time_limit']
         if res['mem_limit'] > 0 :
-            ret += "#SBATCH --mem %dG \n" % res['mem_limit']
+            ret += "#SBATCH --mem=%dG \n" % res['mem_limit']
         if len(res['account']) > 0 :
-            ret += "#SBATCH --account %s \n" % res['account']
+            ret += "#SBATCH --account=%s \n" % res['account']
         if len(res['partition']) > 0 :
-            ret += "#SBATCH --partition %s \n" % res['partition']
+            ret += "#SBATCH --partition=%s \n" % res['partition']
         if len(res['qos']) > 0 :
-            ret += "#SBATCH --qos %s \n" % res['qos']
+            ret += "#SBATCH --qos=%s \n" % res['qos']
         if res['numb_gpu'] > 0 :
             ret += "#SBATCH --gres=gpu:%d\n" % res['numb_gpu']
         for ii in res['constraint_list'] :
@@ -483,7 +483,7 @@ class SlurmJob (RemoteJob) :
                 temp_exclude += ii
                 temp_exclude += ","
             temp_exclude = temp_exclude[:-1]
-            ret += '#SBATCH --exclude %s \n' % temp_exclude
+            ret += '#SBATCH --exclude=%s \n' % temp_exclude
         ret += "\n"
         # ret += 'set -euo pipefail\n\n'
         for ii in res['module_unload_list'] :
@@ -656,16 +656,29 @@ class PBSJob (RemoteJob) :
         _set_default_resource(res)
         ret = ''
         ret += "#!/bin/bash -l\n"
-        if res['numb_gpu'] == 0:
-            ret += '#PBS -l nodes=%d:ppn=%d\n' % (res['numb_node'], res['task_per_node'])
-        else :
-            ret += '#PBS -l nodes=%d:ppn=%d:gpus=%d\n' % (res['numb_node'], res['task_per_node'], res['numb_gpu'])
-        ret += '#PBS -l walltime=%s\n' % (res['time_limit'])
+        if 'ncpus' in res:
+            ret += '#PBS -l ncpus=%s\n' % (res['ncpus'])
+        if 'ngpus' in res:
+            ret += '#PBS -l ngpus=%s\n' % (res['ngpus'])
+        if 'numb_node' and 'task_per_node' and 'numb_gpu' in res:
+            if res['numb_gpu'] == 0:
+                ret += '#PBS -l nodes=%d:ppn=%d\n' % (res['numb_node'], res['task_per_node'])
+            else :
+                ret += '#PBS -l nodes=%d:ppn=%d:gpus=%d\n' % (res['numb_node'], res['task_per_node'], res['numb_gpu'])
+        if 'account' in res:
+            ret += '#PBS -P %s\n' % (res['account'])
+        if 'mem' in res:
+            ret += '#PBS -l mem=%s\n' % (res['mem'])
         if res['mem_limit'] > 0 :
             ret += "#PBS -l mem=%dG \n" % res['mem_limit']
+        if 'jobfs' in res:
+            ret += '#PBS -l jobfs=%s\n' % (res['jobfs'])
+        ret += '#PBS -l walltime=%s\n' % (res['time_limit'])
         ret += '#PBS -j oe\n'
         if len(res['partition']) > 0 :
             ret += '#PBS -q %s\n' % res['partition']
+        if len(res['storage']) > 0:
+            ret += '#PBS -l storage=%s\n' % res['storage']
         ret += "\n"
         for ii in res['module_unload_list'] :
             ret += "module unload %s\n" % ii
