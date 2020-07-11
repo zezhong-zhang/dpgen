@@ -75,18 +75,18 @@ class Slurm(Batch) :
         ret = ''
         ret += "#!/bin/bash -l\n"
         ret += "#SBATCH -N %d\n" % res['numb_node']
-        ret += "#SBATCH --ntasks-per-node %d\n" % res['task_per_node']
+        ret += "#SBATCH --ntasks-per-node=%d\n" % res['task_per_node']
         if res['cpus_per_task'] > 0 :            
-            ret += "#SBATCH --cpus-per-task %d\n" % res['cpus_per_task']
+            ret += "#SBATCH --cpus-per-task=%d\n" % res['cpus_per_task']
         ret += "#SBATCH -t %s\n" % res['time_limit']
         if res['mem_limit'] > 0 :
-            ret += "#SBATCH --mem %dG \n" % res['mem_limit']
+            ret += "#SBATCH --mem=%dG \n" % res['mem_limit']
         if len(res['account']) > 0 :
-            ret += "#SBATCH --account %s \n" % res['account']
+            ret += "#SBATCH --account=%s \n" % res['account']
         if len(res['partition']) > 0 :
-            ret += "#SBATCH --partition %s \n" % res['partition']
+            ret += "#SBATCH --partition=%s \n" % res['partition']
         if len(res['qos']) > 0 :
-            ret += "#SBATCH --qos %s \n" % res['qos']
+            ret += "#SBATCH --qos=%s \n" % res['qos']
         if res['numb_gpu'] > 0 :
             ret += "#SBATCH --gres=gpu:%d\n" % res['numb_gpu']
         for ii in res['constraint_list'] :
@@ -99,7 +99,7 @@ class Slurm(Batch) :
                 temp_exclude += ii
                 temp_exclude += ","
             temp_exclude = temp_exclude[:-1]
-            ret += '#SBATCH --exclude %s \n' % temp_exclude
+            ret += '#SBATCH --exclude=%s \n' % temp_exclude
         ret += "\n"
         for ii in res['module_unload_list'] :
             ret += "module unload %s\n" % ii
@@ -149,7 +149,7 @@ class Slurm(Batch) :
         else:
             return ""
 
-    def _check_status_inner(self, job_id):
+    def _check_status_inner(self, job_id, retry=0):
         ret, stdin, stdout, stderr\
             = self.context.block_call ('squeue -o "%.18i %.2t" -j ' + job_id)
         if (ret != 0) :
@@ -160,6 +160,11 @@ class Slurm(Batch) :
                 else :
                     return JobStatus.terminated
             else :
+                # retry 3 times
+                if retry < 3:
+                    # rest 60s
+                    time.sleep(60)
+                    return self._check_status_inner(job_id, retry=retry+1)
                 raise RuntimeError\
                     ("status command squeue fails to execute\nerror message:%s\nreturn code %d\n" % (err_str, ret))
         status_line = stdout.read().decode('utf-8').split ('\n')[-2]
@@ -189,7 +194,7 @@ class Slurm(Batch) :
         username = getpass.getuser()
         stdin, stdout, stderr = self.context.block_checkcall('squeue -u %s -h' % username)
         nj = len(stdout.readlines())
-        return nj < task_max
+        return nj >= task_max
 
     def _make_squeue(self,mdata1, res):
         ret = ''
