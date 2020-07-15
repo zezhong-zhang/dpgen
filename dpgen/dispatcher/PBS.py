@@ -1,6 +1,7 @@
 import os,getpass,time
 from dpgen.dispatcher.Batch import Batch
 from dpgen.dispatcher.JobStatus import JobStatus
+from dpgen import dlog
 
 def _default_item(resources, key, value) :
     if key not in resources :
@@ -16,7 +17,7 @@ class PBS(Batch) :
             = self.context.block_call ("qstat " + job_id)
         err_str = stderr.read().decode('utf-8')
         if (ret != 0) :
-            if str("qstat: Unknown Job Id") in err_str :
+            if str("qstat: Unknown Job Id") or str("qstat: illegally formed job identifier") in err_str :
                 if self.check_finish_tag() :
                     return JobStatus.finished
                 else :

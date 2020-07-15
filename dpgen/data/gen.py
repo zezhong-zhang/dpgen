@@ -503,13 +503,13 @@ def coll_vasp_md(jdata) :
             for kk in range(pert_numb) :
                 path_work = os.path.join("scale-%.3f" % jj, "%06d" % kk)
                 outcar = os.path.join(path_work, 'OUTCAR')
-                dlog.info("OUTCAR",outcar)
+                # dlog.info("OUTCAR",outcar)
                 if os.path.isfile(outcar) :
                     #dlog.info("*"*40)
                     with open(outcar, 'r') as fin:
                         nforce = fin.read().count('TOTAL-FORCE')
-                    dlog.info("nforce is", nforce)
-                    dlog.info("md_nstep", md_nstep)
+                    # dlog.info("nforce is", nforce)
+                    # dlog.info("md_nstep", md_nstep)
                     # print(nforce,md_nstep)
                     if nforce == md_nstep :
                         valid_outcars.append(outcar)
