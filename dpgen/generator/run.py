@@ -13,6 +13,7 @@ import os
 import sys
 import argparse
 import glob
+import pathlib
 import json
 import random
 import logging
@@ -263,9 +264,12 @@ def make_train (iter_index,
             if ii == iter_index - 1:
                 old_range = len(init_data_sys)
             fp_path = os.path.join(make_iter_name(ii), fp_name)
-            fp_data_sys = glob.glob(os.path.join(fp_path, "data.*"))
+            fp_data_sys = glob.glob(os.path.join(fp_path, "data.*","**","set.*"),recursive=True)
+            fp_data_sys = [str(pathlib.Path(l).parent) for l in fp_data_sys]
             for jj in fp_data_sys :
-                sys_idx = int(jj.split('.')[-1])
+                sys_idx = int(jj.split('.')[-1].split('/')[0])
+                # print('including system: '+jj)
+                # print('Number of frames: '+str(sys_idx))
                 if jdata.get('use_clusters', False):
                     nframes = 0
                     for sys_single in os.listdir(jj):
@@ -414,7 +418,7 @@ def run_train (iter_index,
     train_input_file = default_train_input_file
     training_reuse_iter = jdata.get('training_reuse_iter')
     training_init_model = jdata.get('training_init_model', False)
-    if training_reuse_iter is not None and iter_index >= training_reuse_iter:
+    if iter_index >= 1:
         training_init_model = True
     try:
         mdata["deepmd_version"]
@@ -485,13 +489,10 @@ def run_train (iter_index,
     init_data_sys = []
     for ii in init_data_sys_ :
         init_data_sys.append(os.path.join('data.init', ii))
-    fp_data_ = glob.glob(os.path.join('iter.*', '02.fp', 'data.*'))
-    fp_data = []
-    for ii in fp_data_:
-        fp_data.append(os.path.join('data.iters', ii))
     trans_comm_data = []
     cwd = os.getcwd()
     os.chdir(work_path)
+    fp_data = glob.glob(os.path.join('data.iters', 'iter.*', '02.fp', 'data.*',"**"),recursive=True)
     for ii in init_data_sys :
         if jdata.get('init_multi_systems', False):
             for single_sys in os.listdir(os.path.join(ii)):
@@ -1871,14 +1872,13 @@ def post_fp_vasp (iter_index,
     system_index.sort()
 
     cwd = os.getcwd()
-
     tcount=0
     icount=0
     for ss in system_index :
         sys_outcars = glob.glob(os.path.join(work_path, "task.%s.*/OUTCAR"%ss))
         sys_outcars.sort()
         tcount += len(sys_outcars)
-        all_sys = None
+        all_sys = dpdata.MultiSystems()
         all_te = []
         for oo in sys_outcars :
             try:
@@ -1891,10 +1891,7 @@ def post_fp_vasp (iter_index,
                    _sys = dpdata.LabeledSystem()
                    dlog.info('Failed fp path: %s'%oo.replace('OUTCAR',''))
             if len(_sys) == 1:
-                if all_sys is None:
-                    all_sys = _sys
-                else:
-                    all_sys.append(_sys)
+                all_sys.append(_sys)
                 # save ele_temp, if any
                 with open(oo.replace('OUTCAR', 'job.json')) as fp:
                     job_data = json.load(fp)

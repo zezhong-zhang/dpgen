@@ -687,6 +687,7 @@ class PBSJob (RemoteJob) :
         ret += "\n"
         for ii in res['source_list'] :
             ret += "source %s\n" %ii
+        ret +="#PBS -l wd"
         ret += "\n"
         envs = res['envs']
         if envs != None :

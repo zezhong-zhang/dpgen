@@ -503,6 +503,7 @@ class PBSJob (RemoteJob) :
             ret += '#PBS -q %s\n' % res['partition']
         if len(res['storage']) > 0:
             ret += '#PBS -l storage=%s\n' % res['storage']
+        ret +="#PBS -l wd"
         ret += "\n"
         for ii in res['module_unload_list'] :
             ret += "module unload %s\n" % ii
