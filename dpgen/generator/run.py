@@ -2158,7 +2158,7 @@ def post_fp_pwmat (iter_index,
 def post_fp (iter_index,
              jdata) :
     fp_style = jdata['fp_style']
-    post_fp_check_fail(iter_index, jdata)
+    post_fp_check_fail(iter_index, jdata, 0.1)
     if fp_style == "vasp" :
         post_fp_vasp(iter_index, jdata)
     elif fp_style == "pwscf" :
