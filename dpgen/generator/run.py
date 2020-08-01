@@ -1843,9 +1843,8 @@ def post_fp_check_fail(iter_index,
     nfail = len(fp_failed_tasks)
     rfail = float(nfail) / float(ntask)
     dlog.info("failed tasks: %6d in %6d  %6.2f %% " % (nfail, ntask, rfail * 100.))
-    print(rfail, ratio_failed)
-    # if rfail > ratio_failed:
-    #    raise RuntimeError("find too many unsuccessfully terminated jobs")
+    if rfail > ratio_failed:
+       raise RuntimeError("find too many unsuccessfully terminated jobs")
     
 
 def post_fp_vasp (iter_index,
@@ -2159,9 +2158,9 @@ def post_fp_pwmat (iter_index,
 def post_fp (iter_index,
              jdata) :
     fp_style = jdata['fp_style']
-    post_fp_check_fail(iter_index, jdata)
+    post_fp_check_fail(iter_index, jdata, 0.2)
     if fp_style == "vasp" :
-        post_fp_vasp(iter_index, jdata)
+        post_fp_vasp(iter_index, jdata, 0.2)
     elif fp_style == "pwscf" :
         post_fp_pwscf(iter_index, jdata)
     elif fp_style == "siesta":
