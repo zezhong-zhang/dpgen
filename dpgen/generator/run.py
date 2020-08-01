@@ -1827,7 +1827,7 @@ def run_fp (iter_index,
 def post_fp_check_fail(iter_index, 
                        jdata, 
                        rfailed = None) :
-    ratio_failed =  rfailed if rfailed else jdata.get('ratio_failed',0.05)
+    ratio_failed =  rfailed if rfailed else jdata.get('ratio_failed',0.15)
     iter_name = make_iter_name(iter_index)
     work_path = os.path.join(iter_name, fp_name)
     fp_tasks = glob.glob(os.path.join(work_path, 'task.*'))
@@ -2158,7 +2158,7 @@ def post_fp_pwmat (iter_index,
 def post_fp (iter_index,
              jdata) :
     fp_style = jdata['fp_style']
-    post_fp_check_fail(iter_index, jdata, 0.1)
+    post_fp_check_fail(iter_index, jdata)
     if fp_style == "vasp" :
         post_fp_vasp(iter_index, jdata)
     elif fp_style == "pwscf" :
