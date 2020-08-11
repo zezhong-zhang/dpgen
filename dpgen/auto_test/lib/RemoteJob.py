@@ -484,10 +484,10 @@ class PBSJob (RemoteJob) :
             ret += '#PBS -l ncpus=%s\n' % (res['ncpus'])
         if 'ngpus' in res:
             ret += '#PBS -l ngpus=%s\n' % (res['ngpus'])
-        if 'numb_node' and 'task_per_node' and 'numb_gpu' in res:
-            if res['numb_gpu'] == 0:
+        if 'numb_node' and 'task_per_node' in res:
+            if 'numb_gpu' not in res:
                 ret += '#PBS -l nodes=%d:ppn=%d\n' % (res['numb_node'], res['task_per_node'])
-            else :
+            else:
                 ret += '#PBS -l nodes=%d:ppn=%d:gpus=%d\n' % (res['numb_node'], res['task_per_node'], res['numb_gpu'])
         if 'account' in res:
             ret += '#PBS -P %s\n' % (res['account'])
@@ -503,6 +503,7 @@ class PBSJob (RemoteJob) :
             ret += '#PBS -q %s\n' % res['partition']
         if len(res['storage']) > 0:
             ret += '#PBS -l storage=%s\n' % res['storage']
+        ret +="#PBS -l wd"
         ret += "\n"
         for ii in res['module_unload_list'] :
             ret += "module unload %s\n" % ii
