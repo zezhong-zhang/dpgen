@@ -317,6 +317,7 @@ def make_train (iter_index,
             raise RuntimeError('invalid setting for use_ele_temp ' + str(use_ele_temp))
     # set training reuse model
     if training_reuse_iter is not None and iter_index >= training_reuse_iter:
+    # if iter_index >= 1:
         jinput['training']['auto_prob_style'] \
             ="prob_sys_size; 0:%d:%f; %d:%d:%f" \
             %(old_range, training_reuse_old_ratio, old_range, len(init_data_sys), 1.-training_reuse_old_ratio)
@@ -414,6 +415,7 @@ def run_train (iter_index,
     # train_param = jdata['train_param']
     train_input_file = default_train_input_file
     training_reuse_iter = jdata.get('training_reuse_iter')
+    print(training_reuse_iter)
     training_init_model = jdata.get('training_init_model', False)
     if training_reuse_iter is not None and iter_index >= training_reuse_iter:
         training_init_model = True
