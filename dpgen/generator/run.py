@@ -493,12 +493,7 @@ def run_train (iter_index,
     trans_comm_data = []
     cwd = os.getcwd()
     os.chdir(work_path)
-<<<<<<< HEAD
-    fp_data = glob.glob(os.path.join('data.iters', 'iter.*', '02.fp', 'data.*',"**"),recursive=True)
-||||||| 413d945
-=======
     fp_data = glob.glob(os.path.join('data.iters', 'iter.*', '02.fp', 'data.*'))
->>>>>>> f8d70a4d2bb4013ee499ed5ab2441a21033cf0d6
     for ii in init_data_sys :
         if jdata.get('init_multi_systems', False):
             for single_sys in os.listdir(os.path.join(ii)):
