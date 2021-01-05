@@ -1911,7 +1911,7 @@ def post_fp_vasp (iter_index,
         sys_outcars = glob.glob(os.path.join(work_path, "task.%s.*/OUTCAR"%ss))
         sys_outcars.sort()
         tcount += len(sys_outcars)
-        all_sys = None
+        all_sys = dpdata.MultiSystems(type_map = jdata['type_map'])
         all_te = []
         for oo in sys_outcars :
             try:
@@ -1919,15 +1919,12 @@ def post_fp_vasp (iter_index,
             except:
                 dlog.info('Try to parse from vasprun.xml')
                 try:
-                   _sys = dpdata.LabeledSystem(oo.replace('OUTCAR','vasprun.xml'), type_map = jdata['type_map'])
+                    _sys = dpdata.LabeledSystem(oo.replace('OUTCAR','vasprun.xml'), type_map = jdata['type_map'])
                 except:
-                   _sys = dpdata.LabeledSystem()
-                   dlog.info('Failed fp path: %s'%oo.replace('OUTCAR',''))
+                    _sys = dpdata.LabeledSystem()
+                    dlog.info('Failed fp path: %s'%oo.replace('OUTCAR',''))
             if len(_sys) == 1:
-                if all_sys is None:
-                    all_sys = _sys
-                else:
-                    all_sys.append(_sys)
+                all_sys.append(_sys)
                 # save ele_temp, if any
                 with open(oo.replace('OUTCAR', 'job.json')) as fp:
                     job_data = json.load(fp)
