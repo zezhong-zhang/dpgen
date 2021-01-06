@@ -15,8 +15,9 @@ class PBS(Batch) :
         ret, stdin, stdout, stderr\
             = self.context.block_call ("qstat " + job_id)
         err_str = stderr.read().decode('utf-8')
+
         if (ret != 0) :
-            if str("qstat: Unknown Job Id") in err_str :
+            if str("qstat: Unknown Job Id") in err_str or str("Job has finished") in err_str:
                 if self.check_finish_tag() :
                     return JobStatus.finished
                 else :
