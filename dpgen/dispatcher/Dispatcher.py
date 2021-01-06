@@ -264,7 +264,7 @@ class JobRecord(object):
 
     def get_uuid(self, chunk_hash):
         self.valid_hash(chunk_hash)
-        return self.record[chunk_hash]['context'][2]
+        return self.record[chunk_hash]['context']['job_uuid']
 
     def check_finished(self, chunk_hash):
         self.valid_hash(chunk_hash)
